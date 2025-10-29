@@ -1,12 +1,23 @@
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import Image from "next/image"
-import Link from "next/link"
-import { BookOpen, Users, Heart, Star, ArrowRight, Play, Download, Sparkles, GraduationCap, Video } from "lucide-react"
-import { Header } from "@/components/header"
-import { Footer } from "@/components/footer"
-import { WhatsAppButton } from "@/components/whatsapp-button"
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import Image from "next/image";
+import Link from "next/link";
+import {
+  BookOpen,
+  Users,
+  Heart,
+  Star,
+  ArrowRight,
+  Play,
+  Download,
+  Sparkles,
+  GraduationCap,
+  Video,
+} from "lucide-react";
+import { Header } from "@/components/header";
+import { Footer } from "@/components/footer";
+import { WhatsAppButton } from "@/components/whatsapp-button";
 
 export default function HomePage() {
   return (
@@ -28,8 +39,9 @@ export default function HomePage() {
                 Transforme a educação dos seus filhos
               </h1>
               <p className="text-xl lg:text-2xl text-purple-50 leading-relaxed">
-                Descubra estratégias práticas da Disciplina Positiva através de e-books, cursos e conteúdos exclusivos.
-                Crie conexões mais fortes e um ambiente familiar saudável.
+                Descubra estratégias práticas da Disciplina Positiva através de
+                e-books, cursos e conteúdos exclusivos. Crie conexões mais
+                fortes e um ambiente familiar saudável.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Button
@@ -57,11 +69,15 @@ export default function HomePage() {
               <div className="flex items-center gap-8 pt-4">
                 <div className="text-center">
                   <div className="text-3xl font-bold">500+</div>
-                  <div className="text-sm text-purple-100">Famílias Atendidas</div>
+                  <div className="text-sm text-purple-100">
+                    Famílias Atendidas
+                  </div>
                 </div>
                 <div className="text-center">
                   <div className="text-3xl font-bold">15+</div>
-                  <div className="text-sm text-purple-100">Anos de Experiência</div>
+                  <div className="text-sm text-purple-100">
+                    Anos de Experiência
+                  </div>
                 </div>
                 <div className="text-center">
                   <div className="text-3xl font-bold">50+</div>
@@ -69,14 +85,16 @@ export default function HomePage() {
                 </div>
               </div>
             </div>
+            {/* Imagem da Hero Section com object-cover */}
             <div className="relative animate-float">
               <div className="absolute inset-0 bg-gradient-to-r from-pink-400 to-purple-400 rounded-3xl transform rotate-6 blur-2xl opacity-50"></div>
               <Image
-                src="/images/carol-profile.png"
+                src="/IA1.jpg" // Sua nova imagem
                 alt="Carol das Virgens - Psicopedagoga"
                 width={600}
                 height={600}
-                className="relative rounded-3xl shadow-2xl border-4 border-white/20"
+                // Adicionado object-cover para manter a proporção
+                className="relative rounded-3xl shadow-2xl border-4 border-white/20 object-cover"
               />
             </div>
           </div>
@@ -84,13 +102,21 @@ export default function HomePage() {
       </section>
 
       {/* About Section */}
-      <section id="sobre" className="py-24 bg-gradient-to-br from-purple-50 via-white to-pink-50">
+      <section
+        id="sobre"
+        className="py-24 bg-gradient-to-br from-purple-50 via-white to-pink-50"
+      >
         <div className="container mx-auto max-w-7xl px-4">
           <div className="text-center mb-16 space-y-4">
-            <Badge className="bg-purple-100 text-purple-800 hover:bg-purple-200">Sobre Mim</Badge>
-            <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 text-balance">Carol das Virgens</h2>
+            <Badge className="bg-purple-100 text-purple-800 hover:bg-purple-200">
+              Sobre Mim
+            </Badge>
+            <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 text-balance">
+              Carol das Virgens
+            </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-              Pedagoga, Psicopedagoga e Educadora Parental na Disciplina Positiva
+              Pedagoga, Psicopedagoga e Educadora Parental na Disciplina
+              Positiva
             </p>
           </div>
 
@@ -98,35 +124,41 @@ export default function HomePage() {
             <div className="relative">
               <div className="absolute -inset-4 bg-gradient-to-r from-purple-200 to-pink-200 rounded-3xl blur-2xl opacity-30"></div>
               <Image
-                src="/images/work-benefits.png"
+                src="/IA2.jpg"
                 alt="Carol das Virgens com criança"
                 width={600}
                 height={600}
-                className="relative rounded-3xl shadow-xl"
+                className="relative rounded-3xl shadow-xl object-cover aspect-[4/5]" // Ajustei aspect ratio
               />
             </div>
             <div className="space-y-6">
               <h3 className="text-3xl font-bold text-gray-900">Minha Missão</h3>
+              {/* Texto mais curto */}
               <p className="text-lg text-gray-700 leading-relaxed">
-                Sou Pedagoga, Psicopedagoga e Educadora Parental na Disciplina Positiva, criando conexões através da
-                gentileza e o encorajamento de forma afetiva na vida das pessoas.
+                Sou Carol das Virgens, professora da Educação Infantil,
+                psicopedagoga, educadora parental na Disciplina Positiva e mãe
+                de Nina. Acredito que educar é um ato de amor, presença e
+                coragem.
               </p>
               <p className="text-lg text-gray-700 leading-relaxed">
-                Na Psicopedagogia, investigo se as competências e habilidades necessárias para aquisição da aprendizagem
-                estão desenvolvidas corretamente. Utilizo materiais da INEPpsin (Instituto Internacional de Estudos e
-                Pesquisa em Psicopedagogia e Neurociências).
+                Meu propósito é inspirar famílias e educadores a construírem
+                relações mais respeitosas e conscientes, transformando desafios
+                do dia a dia em oportunidades de conexão e aprendizado. Aqui{" "}
+                <strong>
+                  compartilho caminhos possíveis para uma educação com empatia,
+                  leveza e propósito
+                </strong>
+                .
               </p>
-              <p className="text-lg text-gray-700 leading-relaxed">
-                Como Educadora Parental na Disciplina Positiva, proporciono aos pais e cuidadores ferramentas e
-                estratégias práticas para criar um ambiente familiar saudável e positivo, promovendo o desenvolvimento
-                emocional e social saudável dos filhos.
-              </p>
+              {/* Botão CTA que leva para a página /sobre */}
               <Button
                 size="lg"
-                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 shadow-lg hover:shadow-xl transition-all mt-4"
                 asChild
               >
                 <Link href="/sobre">
+                  {" "}
+                  {/* Link para a nova página */}
                   Saiba Mais Sobre Mim
                   <ArrowRight className="w-5 h-5 ml-2" />
                 </Link>
@@ -142,7 +174,8 @@ export default function HomePage() {
                 </div>
                 <h3 className="text-2xl font-bold text-purple-800">Crianças</h3>
                 <p className="text-gray-600 leading-relaxed">
-                  Desenvolvimento de habilidades socioemocionais, autorregulação e resolução saudável de conflitos.
+                  Desenvolvimento de habilidades socioemocionais, autorregulação
+                  e resolução saudável de conflitos.
                 </p>
               </CardContent>
             </Card>
@@ -154,7 +187,8 @@ export default function HomePage() {
                 </div>
                 <h3 className="text-2xl font-bold text-purple-800">Famílias</h3>
                 <p className="text-gray-600 leading-relaxed">
-                  Ferramentas para criar ambiente de respeito, cooperação e vínculos mais fortes e saudáveis.
+                  Ferramentas para criar ambiente de respeito, cooperação e
+                  vínculos mais fortes e saudáveis.
                 </p>
               </CardContent>
             </Card>
@@ -164,9 +198,12 @@ export default function HomePage() {
                 <div className="w-20 h-20 bg-gradient-to-br from-purple-100 to-pink-100 rounded-2xl flex items-center justify-center mx-auto">
                   <GraduationCap className="w-10 h-10 text-purple-600" />
                 </div>
-                <h3 className="text-2xl font-bold text-purple-800">Educadores</h3>
+                <h3 className="text-2xl font-bold text-purple-800">
+                  Educadores
+                </h3>
                 <p className="text-gray-600 leading-relaxed">
-                  Estratégias para lidar com comportamentos desafiadores e criar ambiente escolar acolhedor.
+                  Estratégias para lidar com comportamentos desafiadores e criar
+                  ambiente escolar acolhedor.
                 </p>
               </CardContent>
             </Card>
@@ -178,10 +215,15 @@ export default function HomePage() {
       <section id="ebooks" className="py-24 bg-white">
         <div className="container mx-auto max-w-7xl px-4">
           <div className="text-center mb-16 space-y-4">
-            <Badge className="bg-purple-100 text-purple-800 hover:bg-purple-200">E-books</Badge>
-            <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 text-balance">Conteúdo Transformador</h2>
+            <Badge className="bg-purple-100 text-purple-800 hover:bg-purple-200">
+              E-books
+            </Badge>
+            <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 text-balance">
+              Conteúdo Transformador
+            </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-              E-books especializados baseados na Disciplina Positiva para revolucionar sua abordagem educacional
+              E-books especializados baseados na Disciplina Positiva para
+              revolucionar sua abordagem educacional
             </p>
           </div>
 
@@ -197,13 +239,15 @@ export default function HomePage() {
               },
               {
                 title: "Criando Vínculos Saudáveis",
-                description: "Como fortalecer a conexão com seus filhos através da comunicação empática.",
+                description:
+                  "Como fortalecer a conexão com seus filhos através da comunicação empática.",
                 price: "R$ 37,00",
                 image: "/ebook-vinculos-familiares.jpg",
               },
               {
                 title: "Educação Emocional Infantil",
-                description: "Desenvolva a inteligência emocional das crianças com técnicas comprovadas.",
+                description:
+                  "Desenvolva a inteligência emocional das crianças com técnicas comprovadas.",
                 price: "R$ 42,00",
                 image: "/ebook-educacao-emocional.jpg",
               },
@@ -219,11 +263,20 @@ export default function HomePage() {
                   </Badge>
                 )}
                 <div className="relative h-64 bg-gradient-to-br from-purple-100 to-pink-100">
-                  <Image src={ebook.image || "/placeholder.svg"} alt={ebook.title} fill className="object-cover" />
+                  <Image
+                    src={ebook.image || "/placeholder.svg"}
+                    alt={ebook.title}
+                    fill
+                    className="object-cover"
+                  />
                 </div>
                 <CardContent className="p-6 space-y-4">
-                  <h3 className="font-bold text-xl text-gray-900">{ebook.title}</h3>
-                  <p className="text-gray-600 leading-relaxed">{ebook.description}</p>
+                  <h3 className="font-bold text-xl text-gray-900">
+                    {ebook.title}
+                  </h3>
+                  <p className="text-gray-600 leading-relaxed">
+                    {ebook.description}
+                  </p>
                   <div className="flex items-center justify-between pt-4">
                     <span className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
                       {ebook.price}
@@ -241,17 +294,22 @@ export default function HomePage() {
       </section>
 
       {/* Courses Section */}
-      <section id="cursos" className="py-24 bg-gradient-to-br from-purple-50 via-pink-50 to-purple-50">
+      <section
+        id="cursos"
+        className="py-24 bg-gradient-to-br from-purple-50 via-pink-50 to-purple-50"
+      >
         <div className="container mx-auto max-w-7xl px-4">
           <div className="text-center mb-16 space-y-4">
             <Badge className="bg-purple-100 text-purple-800 hover:bg-purple-200">
               <Video className="w-4 h-4 mr-2" />
               Cursos Online
             </Badge>
-            <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 text-balance">Aprenda no Seu Ritmo</h2>
+            <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 text-balance">
+              Aprenda no Seu Ritmo
+            </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-              Cursos em vídeo com acesso vitalício após a compra. Aprenda com aulas práticas e transforme sua educação
-              parental.
+              Cursos em vídeo com acesso vitalício após a compra. Aprenda com
+              aulas práticas e transforme sua educação parental.
             </p>
           </div>
 
@@ -269,7 +327,8 @@ export default function HomePage() {
               },
               {
                 title: "Comunicação Não-Violenta com Crianças",
-                description: "Aprenda técnicas de comunicação empática para fortalecer vínculos e resolver conflitos.",
+                description:
+                  "Aprenda técnicas de comunicação empática para fortalecer vínculos e resolver conflitos.",
                 duration: "6 horas",
                 lessons: 18,
                 price: "R$ 147,00",
@@ -300,8 +359,12 @@ export default function HomePage() {
                   </div>
                 </div>
                 <CardContent className="p-6 space-y-4">
-                  <h3 className="font-bold text-2xl text-gray-900">{course.title}</h3>
-                  <p className="text-gray-600 leading-relaxed">{course.description}</p>
+                  <h3 className="font-bold text-2xl text-gray-900">
+                    {course.title}
+                  </h3>
+                  <p className="text-gray-600 leading-relaxed">
+                    {course.description}
+                  </p>
                   <div className="flex items-center gap-6 text-sm text-gray-500">
                     <div className="flex items-center gap-2">
                       <Video className="w-4 h-4" />
@@ -336,43 +399,80 @@ export default function HomePage() {
               <Sparkles className="w-4 h-4 mr-2" />
               Carol na Mídia
             </Badge>
-            <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 text-balance">Palestras e Participações</h2>
+            <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 text-balance">
+              Palestras e Participações
+            </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-              Participações em congressos, palestras motivacionais e workshops sobre Educação Parental
+              Participações em congressos, palestras motivacionais e workshops
+              sobre Educação Parental
             </p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
             <Card className="overflow-hidden hover:shadow-xl transition-all hover:scale-105">
               <div className="relative h-64">
-                <Image src="/images/projects.png" alt="Palestra motivacional" fill className="object-cover" />
+                <Image
+                  src="/images/projects.png"
+                  alt="Palestra motivacional"
+                  fill
+                  className="object-cover"
+                />
               </div>
               <CardContent className="p-6">
-                <Badge className="mb-3 bg-purple-100 text-purple-800">Palestra</Badge>
-                <h3 className="font-bold text-xl text-gray-900 mb-2">Workshop Educação Parental</h3>
-                <p className="text-gray-600">Grande evento com centenas de participantes sobre Disciplina Positiva.</p>
+                <Badge className="mb-3 bg-purple-100 text-purple-800">
+                  Palestra
+                </Badge>
+                <h3 className="font-bold text-xl text-gray-900 mb-2">
+                  Workshop Educação Parental
+                </h3>
+                <p className="text-gray-600">
+                  Grande evento com centenas de participantes sobre Disciplina
+                  Positiva.
+                </p>
               </CardContent>
             </Card>
 
             <Card className="overflow-hidden hover:shadow-xl transition-all hover:scale-105">
               <div className="relative h-64 bg-gradient-to-br from-purple-200 to-pink-200">
-                <Image src="/congresso-educacao.jpg" alt="Congresso de Educação" fill className="object-cover" />
+                <Image
+                  src="/congresso-educacao.jpg"
+                  alt="Congresso de Educação"
+                  fill
+                  className="object-cover"
+                />
               </div>
               <CardContent className="p-6">
-                <Badge className="mb-3 bg-pink-100 text-pink-800">Congresso</Badge>
-                <h3 className="font-bold text-xl text-gray-900 mb-2">Congresso Nacional de Psicopedagogia</h3>
-                <p className="text-gray-600">Participação como palestrante sobre desenvolvimento infantil.</p>
+                <Badge className="mb-3 bg-pink-100 text-pink-800">
+                  Congresso
+                </Badge>
+                <h3 className="font-bold text-xl text-gray-900 mb-2">
+                  Congresso Nacional de Psicopedagogia
+                </h3>
+                <p className="text-gray-600">
+                  Participação como palestrante sobre desenvolvimento infantil.
+                </p>
               </CardContent>
             </Card>
 
             <Card className="overflow-hidden hover:shadow-xl transition-all hover:scale-105">
               <div className="relative h-64 bg-gradient-to-br from-purple-200 to-pink-200">
-                <Image src="/entrevista-podcast.jpg" alt="Podcast" fill className="object-cover" />
+                <Image
+                  src="/entrevista-podcast.jpg"
+                  alt="Podcast"
+                  fill
+                  className="object-cover"
+                />
               </div>
               <CardContent className="p-6">
-                <Badge className="mb-3 bg-purple-100 text-purple-800">Podcast</Badge>
-                <h3 className="font-bold text-xl text-gray-900 mb-2">Podcast Educação Positiva</h3>
-                <p className="text-gray-600">Entrevista sobre os desafios da educação moderna.</p>
+                <Badge className="mb-3 bg-purple-100 text-purple-800">
+                  Podcast
+                </Badge>
+                <h3 className="font-bold text-xl text-gray-900 mb-2">
+                  Podcast Educação Positiva
+                </h3>
+                <p className="text-gray-600">
+                  Entrevista sobre os desafios da educação moderna.
+                </p>
               </CardContent>
             </Card>
           </div>
@@ -380,12 +480,21 @@ export default function HomePage() {
       </section>
 
       {/* Testimonials */}
-      <section id="depoimentos" className="py-24 bg-gradient-to-br from-purple-50 to-pink-50">
+      <section
+        id="depoimentos"
+        className="py-24 bg-gradient-to-br from-purple-50 to-pink-50"
+      >
         <div className="container mx-auto max-w-7xl px-4">
           <div className="text-center mb-16 space-y-4">
-            <Badge className="bg-purple-100 text-purple-800 hover:bg-purple-200">Depoimentos</Badge>
-            <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 text-balance">O Que Dizem as Famílias</h2>
-            <p className="text-xl text-gray-600">Histórias reais de transformação através da Disciplina Positiva</p>
+            <Badge className="bg-purple-100 text-purple-800 hover:bg-purple-200">
+              Depoimentos
+            </Badge>
+            <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 text-balance">
+              O Que Dizem as Famílias
+            </h2>
+            <p className="text-xl text-gray-600">
+              Histórias reais de transformação através da Disciplina Positiva
+            </p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -446,10 +555,15 @@ export default function HomePage() {
                 <CardContent className="space-y-4 pt-2">
                   <div className="flex items-center space-x-1">
                     {[...Array(testimonial.rating)].map((_, i) => (
-                      <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
+                      <Star
+                        key={i}
+                        className="w-5 h-5 fill-yellow-400 text-yellow-400"
+                      />
                     ))}
                   </div>
-                  <p className="text-gray-700 italic leading-relaxed">"{testimonial.content}"</p>
+                  <p className="text-gray-700 italic leading-relaxed">
+                    "{testimonial.content}"
+                  </p>
                   <div className="flex items-center gap-4 pt-4 border-t">
                     <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-200 to-pink-200 overflow-hidden">
                       <Image
@@ -461,8 +575,12 @@ export default function HomePage() {
                       />
                     </div>
                     <div>
-                      <div className="font-semibold text-gray-900">{testimonial.name}</div>
-                      <div className="text-sm text-gray-500">{testimonial.role}</div>
+                      <div className="font-semibold text-gray-900">
+                        {testimonial.name}
+                      </div>
+                      <div className="text-sm text-gray-500">
+                        {testimonial.role}
+                      </div>
                     </div>
                   </div>
                 </CardContent>
@@ -481,7 +599,8 @@ export default function HomePage() {
             Comece Sua Jornada na Disciplina Positiva
           </h2>
           <p className="text-xl mb-8 opacity-90 leading-relaxed">
-            Junte-se a centenas de famílias que já transformaram sua educação parental
+            Junte-se a centenas de famílias que já transformaram sua educação
+            parental
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button
@@ -508,5 +627,5 @@ export default function HomePage() {
 
       <Footer />
     </div>
-  )
+  );
 }

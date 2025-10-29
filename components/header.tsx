@@ -1,13 +1,14 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Heart, Menu } from "lucide-react"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import Image from "next/image"; // Importa o componente Image
+import { useState } from "react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Menu } from "lucide-react"; // Heart foi removido pois não é mais usado aqui
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 export function Header() {
-  const [isOpen, setIsOpen] = useState(false)
+  const [isOpen, setIsOpen] = useState(false);
 
   const navLinks = [
     { href: "/", label: "Início" },
@@ -17,20 +18,22 @@ export function Header() {
     { href: "/blog", label: "Blog" },
     { href: "#midia", label: "Carol na Mídia" },
     { href: "#depoimentos", label: "Depoimentos" },
-  ]
+  ];
 
   return (
     <header className="bg-white/95 backdrop-blur-md border-b border-purple-100 sticky top-0 z-50 shadow-sm">
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
-          <Link href="/" className="flex items-center space-x-3 group">
-            <div className="w-12 h-12 bg-gradient-to-br from-purple-600 to-pink-600 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg">
-              <Heart className="w-6 h-6 text-white" />
-            </div>
-            <div>
-              <h1 className="font-bold text-xl text-gray-900">Carol das Virgens</h1>
-              <p className="text-sm text-gray-600">Psicopedagoga & Educadora Parental</p>
-            </div>
+          {/* Link da Logo */}
+          <Link href="/" className="flex items-center group">
+            <Image
+              src="/logo111.png" // Caminho para a logo na pasta public
+              alt="Logo Carol das Virgens" // Texto alternativo
+              width={180} // Ajuste a largura conforme necessário
+              height={50} // Ajuste a altura conforme necessário
+              priority // Carrega a logo com prioridade
+              className="h-auto" // Mantém a proporção
+            />
           </Link>
 
           {/* Desktop Navigation */}
@@ -85,5 +88,5 @@ export function Header() {
         </div>
       </div>
     </header>
-  )
+  );
 }
