@@ -1,57 +1,148 @@
-"use client"
+import { Button } from "@/components/ui/button";
+import { Heart, ArrowLeft } from "lucide-react";
+import Link from "next/link";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Badge } from "@/components/ui/badge"
-import { Heart, BookOpen, Users, DollarSign, Plus, Edit, Trash2, Upload, BarChart3, ArrowLeft } from "lucide-react"
-import Link from "next/link"
+// Imports de Servidor
+import { createClient } from "@/lib/supabase/server";
+import { redirect } from "next/navigation";
+import { signOutAction } from "@/app/actions";
 
-export default function AdminPage() {
-  const [ebooks, setEbooks] = useState([
-    {
-      id: 1,
-      title: "Disciplina Positiva na Prática",
-      price: 47.0,
-      sales: 156,
-      status: "Ativo",
-    },
-    {
-      id: 2,
-      title: "Criando Vínculos Saudáveis",
-      price: 37.0,
-      sales: 89,
-      status: "Ativo",
-    },
-    {
-      id: 3,
-      title: "Educação Emocional Infantil",
-      price: 42.0,
-      sales: 124,
-      status: "Ativo",
-    },
-  ])
+// Import do nosso novo Client Component
+import { AdminClientPage } from "./AdminClientPage";
+// Import dos nossos tipos compartilhados
+import { Ebook, Course, User, Stats } from "./types";
 
-  const [users] = useState([
-    { id: 1, name: "Maria Silva", email: "maria@email.com", purchases: 3, joined: "2024-01-15" },
-    { id: 2, name: "João Santos", email: "joao@email.com", purchases: 2, joined: "2024-02-20" },
-    { id: 3, name: "Ana Costa", email: "ana@email.com", purchases: 1, joined: "2024-03-10" },
-  ])
+// --- Função Principal da Página (Server Component) ---
+export default async function AdminPage() {
+  const supabase = createClient();
 
-  const totalRevenue = ebooks.reduce((sum, ebook) => sum + ebook.price * ebook.sales, 0)
-  const totalSales = ebooks.reduce((sum, ebook) => sum + ebook.sales, 0)
+  // 1. Proteger a rota: verificar se o usuário está logado
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    return redirect("/login");
+  }
 
+  // --- 2. VERIFICAÇÃO DE SEGURANÇA DE ADMIN ---
+  // Busca o perfil do usuário logado para checar a 'role'
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+
+  // Se o perfil não for encontrado ou a 'role' não for 'admin',
+  // redireciona o usuário para o dashboard normal.
+  if (!profile || profile.role !== "admin") {
+    return redirect("/dashboard");
+  }
+  // --- FIM DA VERIFICAÇÃO DE SEGURANÇA ---
+
+  // 3. Buscar todos os dados em paralelo para performance
+  const [ebooksData, coursesData, usersData, purchasesData] = await Promise.all(
+    [
+      supabase
+        .from("ebooks")
+        .select(
+          "id, title, price, created_at, cover_image_path, pdf_file_path"
+        ),
+      supabase
+        .from("courses")
+        .select("id, title, price, created_at, thumbnail_path"),
+      supabase
+        .from("profiles")
+        .select("id, full_name, created_at, users(email)"),
+      supabase
+        .from("user_purchases")
+        .select("*, ebooks(price), courses(price)"),
+    ]
+  );
+
+  // --- 4. Calcular Estatísticas ---
+
+  // Contagem de Vendas por Produto
+  const salesCountMap = new Map<string, number>();
+  let calculatedTotalRevenue = 0;
+
+  if (purchasesData.data) {
+    for (const purchase of purchasesData.data) {
+      let productId: string | null = null;
+      let price = 0;
+
+      if (purchase.ebook_id && purchase.ebooks) {
+        productId = purchase.ebook_id;
+        price = purchase.ebooks.price || 0;
+      } else if (purchase.course_id && purchase.courses) {
+        productId = purchase.course_id;
+        price = purchase.courses.price || 0;
+      }
+
+      // Adiciona à receita total
+      calculatedTotalRevenue += price;
+
+      // Adiciona à contagem de vendas do produto
+      if (productId) {
+        salesCountMap.set(productId, (salesCountMap.get(productId) || 0) + 1);
+      }
+    }
+  }
+
+  const stats: Stats = {
+    totalRevenue: calculatedTotalRevenue,
+    totalSales: purchasesData.data?.length || 0,
+    totalProducts:
+      (ebooksData.data?.length || 0) + (coursesData.data?.length || 0),
+    totalUsers: usersData.data?.length || 0,
+  };
+
+  // --- 5. Formatar os dados para passar ao cliente ---
+
+  const ebooks: Ebook[] = (ebooksData.data || []).map((e) => ({
+    ...e,
+    price: e.price || 0,
+    sales: salesCountMap.get(e.id) || 0,
+    cover_image_path: e.cover_image_path,
+    pdf_file_path: e.pdf_file_path,
+  }));
+
+  const courses: Course[] = (coursesData.data || []).map((c) => ({
+    ...c,
+    price: c.price || 0,
+    sales: salesCountMap.get(c.id) || 0,
+    thumbnail_path: c.thumbnail_path,
+  }));
+
+  // Contagem de Compras por Usuário
+  const purchaseCountMap = new Map<string, number>();
+  if (purchasesData.data) {
+    for (const purchase of purchasesData.data) {
+      purchaseCountMap.set(
+        purchase.user_id,
+        (purchaseCountMap.get(purchase.user_id) || 0) + 1
+      );
+    }
+  }
+
+  const users: User[] = (usersData.data || []).map((p: any) => ({
+    id: p.id,
+    full_name: p.full_name,
+    email: p.users?.email || "N/A",
+    created_at: p.created_at,
+    purchases: purchaseCountMap.get(p.id) || 0,
+  }));
+
+  // --- 6. Renderizar a Página ---
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
+      {/* Header com botão "Sair" funcional */}
       <header className="bg-white border-b">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <Link href="/" className="inline-flex items-center text-purple-600 hover:text-purple-700">
+            <Link
+              href="/"
+              className="inline-flex items-center text-purple-600 hover:text-purple-700"
+            >
               <ArrowLeft className="w-4 h-4 mr-2" />
               Voltar ao site
             </Link>
@@ -60,197 +151,30 @@ export default function AdminPage() {
                 <Heart className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className="font-bold text-xl text-gray-800">Área Administrativa</h1>
+                <h1 className="font-bold text-xl text-gray-800">
+                  Área Administrativa
+                </h1>
                 <p className="text-sm text-gray-600">Carol das Virgens</p>
               </div>
             </div>
           </div>
-          <Button variant="outline">Sair</Button>
+          <form action={signOutAction}>
+            <Button type="submit" variant="outline">
+              Sair
+            </Button>
+          </form>
         </div>
       </header>
 
       <div className="container mx-auto px-4 py-8">
-        {/* Dashboard Stats */}
-        <div className="grid md:grid-cols-4 gap-6 mb-8">
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600">Receita Total</p>
-                  <p className="text-2xl font-bold text-green-600">
-                    R$ {totalRevenue.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                  </p>
-                </div>
-                <DollarSign className="w-8 h-8 text-green-600" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600">Vendas Totais</p>
-                  <p className="text-2xl font-bold text-blue-600">{totalSales}</p>
-                </div>
-                <BarChart3 className="w-8 h-8 text-blue-600" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600">E-books Ativos</p>
-                  <p className="text-2xl font-bold text-purple-600">{ebooks.length}</p>
-                </div>
-                <BookOpen className="w-8 h-8 text-purple-600" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600">Usuários</p>
-                  <p className="text-2xl font-bold text-orange-600">{users.length}</p>
-                </div>
-                <Users className="w-8 h-8 text-orange-600" />
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Main Content */}
-        <Tabs defaultValue="ebooks" className="space-y-6">
-          <TabsList>
-            <TabsTrigger value="ebooks">E-books</TabsTrigger>
-            <TabsTrigger value="users">Usuários</TabsTrigger>
-            <TabsTrigger value="add-ebook">Adicionar E-book</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="ebooks">
-            <Card>
-              <CardHeader>
-                <CardTitle>Gerenciar E-books</CardTitle>
-                <CardDescription>Visualize e gerencie todos os seus e-books</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {ebooks.map((ebook) => (
-                    <div key={ebook.id} className="flex items-center justify-between p-4 border rounded-lg">
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-gray-800">{ebook.title}</h3>
-                        <div className="flex items-center space-x-4 mt-2">
-                          <span className="text-sm text-gray-600">Preço: R$ {ebook.price.toFixed(2)}</span>
-                          <span className="text-sm text-gray-600">Vendas: {ebook.sales}</span>
-                          <Badge variant="secondary">{ebook.status}</Badge>
-                        </div>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Button size="sm" variant="outline">
-                          <Edit className="w-4 h-4 mr-2" />
-                          Editar
-                        </Button>
-                        <Button size="sm" variant="outline" className="text-red-600 hover:text-red-700 bg-transparent">
-                          <Trash2 className="w-4 h-4 mr-2" />
-                          Excluir
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="users">
-            <Card>
-              <CardHeader>
-                <CardTitle>Usuários Cadastrados</CardTitle>
-                <CardDescription>Visualize todos os usuários da plataforma</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {users.map((user) => (
-                    <div key={user.id} className="flex items-center justify-between p-4 border rounded-lg">
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-gray-800">{user.name}</h3>
-                        <p className="text-sm text-gray-600">{user.email}</p>
-                        <div className="flex items-center space-x-4 mt-2">
-                          <span className="text-sm text-gray-600">Compras: {user.purchases}</span>
-                          <span className="text-sm text-gray-600">
-                            Cadastro: {new Date(user.joined).toLocaleDateString("pt-BR")}
-                          </span>
-                        </div>
-                      </div>
-                      <Button size="sm" variant="outline">
-                        Ver Detalhes
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="add-ebook">
-            <Card>
-              <CardHeader>
-                <CardTitle>Adicionar Novo E-book</CardTitle>
-                <CardDescription>Crie um novo e-book para venda na plataforma</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <form className="space-y-6">
-                  <div className="grid md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <Label htmlFor="title">Título do E-book</Label>
-                      <Input id="title" placeholder="Digite o título do e-book" required />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="price">Preço (R$)</Label>
-                      <Input id="price" type="number" step="0.01" placeholder="0.00" required />
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="description">Descrição</Label>
-                    <Textarea id="description" placeholder="Descreva o conteúdo do e-book" rows={4} required />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="cover">Capa do E-book</Label>
-                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-                      <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                      <p className="text-sm text-gray-600">Clique para fazer upload da capa ou arraste aqui</p>
-                      <Input id="cover" type="file" accept="image/*" className="hidden" />
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="file">Arquivo do E-book (PDF)</Label>
-                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-                      <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                      <p className="text-sm text-gray-600">Clique para fazer upload do PDF ou arraste aqui</p>
-                      <Input id="file" type="file" accept=".pdf" className="hidden" />
-                    </div>
-                  </div>
-
-                  <div className="flex justify-end space-x-4">
-                    <Button variant="outline">Cancelar</Button>
-                    <Button className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700">
-                      <Plus className="w-4 h-4 mr-2" />
-                      Adicionar E-book
-                    </Button>
-                  </div>
-                </form>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+        {/* Passamos todos os dados pré-buscados para o Componente de Cliente */}
+        <AdminClientPage
+          stats={stats}
+          ebooks={ebooks}
+          courses={courses}
+          users={users}
+        />
       </div>
     </div>
-  )
+  );
 }

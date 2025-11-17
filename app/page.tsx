@@ -1,3 +1,4 @@
+// Imports de UI e componentes
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -19,7 +20,64 @@ import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { WhatsAppButton } from "@/components/whatsapp-button";
 
-export default function HomePage() {
+// Imports do Supabase (cliente de servidor)
+import { createClient } from "@/lib/supabase/server";
+
+// NOVO: Import da nossa Server Action de compra
+import { purchaseProductAction } from "@/app/actions";
+
+// Tipos para os nossos dados do Supabase
+type Ebook = {
+  id: string;
+  title: string;
+  description: string | null;
+  price: number;
+  cover_image_url: string | null;
+};
+
+type Course = {
+  id: string;
+  title: string;
+  description: string | null;
+  price: number;
+  thumbnail_url: string | null;
+  youtube_playlist_url: string | null;
+  lessons_count: number | null;
+  duration_hours: number | null;
+};
+
+// A página agora é ASYNC, tornando-a um Server Component
+export default async function HomePage() {
+  // --- BUSCA DE DADOS NO SERVIDOR ---
+  const supabase = createClient();
+
+  // 1. Buscar E-books
+  const { data: ebooksData } = await supabase
+    .from("ebooks")
+    .select("*")
+    .order("created_at", { ascending: false })
+    .limit(3);
+
+  const ebooks = ebooksData || [];
+
+  // 2. Buscar Cursos
+  const { data: coursesData } = await supabase
+    .from("courses")
+    .select("*")
+    .order("created_at", { ascending: false })
+    .limit(2);
+
+  const courses = coursesData || [];
+  // --- FIM DA BUSCA DE DADOS ---
+
+  // Função para formatar o preço
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+    }).format(price);
+  };
+
   return (
     <div className="min-h-screen">
       <Header />
@@ -85,16 +143,15 @@ export default function HomePage() {
                 </div>
               </div>
             </div>
-            {/* Imagem da Hero Section com object-cover */}
             <div className="relative animate-float">
               <div className="absolute inset-0 bg-gradient-to-r from-pink-400 to-purple-400 rounded-3xl transform rotate-6 blur-2xl opacity-50"></div>
               <Image
-                src="/IA1.jpg" // Sua nova imagem
+                src="/IA1.jpg"
                 alt="Carol das Virgens - Psicopedagoga"
                 width={600}
                 height={600}
-                // Adicionado object-cover para manter a proporção
                 className="relative rounded-3xl shadow-2xl border-4 border-white/20 object-cover"
+                priority
               />
             </div>
           </div>
@@ -128,12 +185,11 @@ export default function HomePage() {
                 alt="Carol das Virgens com criança"
                 width={600}
                 height={600}
-                className="relative rounded-3xl shadow-xl object-cover aspect-[4/5]" // Ajustei aspect ratio
+                className="relative rounded-3xl shadow-xl object-cover aspect-[4/5]"
               />
             </div>
             <div className="space-y-6">
               <h3 className="text-3xl font-bold text-gray-900">Minha Missão</h3>
-              {/* Texto mais curto */}
               <p className="text-lg text-gray-700 leading-relaxed">
                 Sou Carol das Virgens, professora da Educação Infantil,
                 psicopedagoga, educadora parental na Disciplina Positiva e mãe
@@ -150,15 +206,12 @@ export default function HomePage() {
                 </strong>
                 .
               </p>
-              {/* Botão CTA que leva para a página /sobre */}
               <Button
                 size="lg"
                 className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 shadow-lg hover:shadow-xl transition-all mt-4"
                 asChild
               >
                 <Link href="/sobre">
-                  {" "}
-                  {/* Link para a nova página */}
                   Saiba Mais Sobre Mim
                   <ArrowRight className="w-5 h-5 ml-2" />
                 </Link>
@@ -211,7 +264,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* E-books Section */}
+      {/* E-books Section (COM BOTÃO FUNCIONAL) */}
       <section id="ebooks" className="py-24 bg-white">
         <div className="container mx-auto max-w-7xl px-4">
           <div className="text-center mb-16 space-y-4">
@@ -227,73 +280,67 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[
-              {
-                title: "Disciplina Positiva na Prática",
-                description:
-                  "Guia completo com estratégias práticas para implementar a disciplina positiva no dia a dia.",
-                price: "R$ 47,00",
-                image: "/ebook-disciplina-positiva.jpg",
-                bestseller: true,
-              },
-              {
-                title: "Criando Vínculos Saudáveis",
-                description:
-                  "Como fortalecer a conexão com seus filhos através da comunicação empática.",
-                price: "R$ 37,00",
-                image: "/ebook-vinculos-familiares.jpg",
-              },
-              {
-                title: "Educação Emocional Infantil",
-                description:
-                  "Desenvolva a inteligência emocional das crianças com técnicas comprovadas.",
-                price: "R$ 42,00",
-                image: "/ebook-educacao-emocional.jpg",
-              },
-            ].map((ebook, index) => (
-              <Card
-                key={index}
-                className="overflow-hidden hover:shadow-2xl transition-all hover:scale-105 border-2 border-purple-50"
-              >
-                {ebook.bestseller && (
-                  <Badge className="absolute top-4 right-4 z-10 bg-gradient-to-r from-yellow-400 to-orange-500 text-white shadow-lg">
-                    <Star className="w-3 h-3 mr-1" />
-                    Mais Vendido
-                  </Badge>
-                )}
-                <div className="relative h-64 bg-gradient-to-br from-purple-100 to-pink-100">
-                  <Image
-                    src={ebook.image || "/placeholder.svg"}
-                    alt={ebook.title}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-                <CardContent className="p-6 space-y-4">
-                  <h3 className="font-bold text-xl text-gray-900">
-                    {ebook.title}
-                  </h3>
-                  <p className="text-gray-600 leading-relaxed">
-                    {ebook.description}
-                  </p>
-                  <div className="flex items-center justify-between pt-4">
-                    <span className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                      {ebook.price}
-                    </span>
-                    <Button className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 shadow-lg">
-                      <Download className="w-4 h-4 mr-2" />
-                      Comprar
-                    </Button>
+          {ebooks.length === 0 ? (
+            <p className="text-center text-gray-500">
+              Nenhum e-book cadastrado no momento. Volte em breve!
+            </p>
+          ) : (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {ebooks.map((ebook) => (
+                <Card
+                  key={ebook.id}
+                  className="overflow-hidden hover:shadow-2xl transition-all hover:scale-105 border-2 border-purple-50"
+                >
+                  <div className="relative h-64 bg-gradient-to-br from-purple-100 to-pink-100">
+                    <Image
+                      src={ebook.cover_image_url || "/placeholder.svg"}
+                      alt={ebook.title}
+                      fill
+                      className="object-cover"
+                    />
                   </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                  <CardContent className="p-6 space-y-4">
+                    <h3 className="font-bold text-xl text-gray-900">
+                      {ebook.title}
+                    </h3>
+                    <p className="text-gray-600 leading-relaxed">
+                      {ebook.description || "Sem descrição."}
+                    </p>
+                    <div className="flex items-center justify-between pt-4">
+                      <span className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                        {formatPrice(ebook.price)}
+                      </span>
+                      {/* --- MUDANÇA AQUI --- */}
+                      <form action={purchaseProductAction}>
+                        <input
+                          type="hidden"
+                          name="product_id"
+                          value={ebook.id}
+                        />
+                        <input
+                          type="hidden"
+                          name="product_type"
+                          value="ebook"
+                        />
+                        <Button
+                          type="submit"
+                          className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 shadow-lg"
+                        >
+                          <Download className="w-4 h-4 mr-2" />
+                          Comprar
+                        </Button>
+                      </form>
+                      {/* --- FIM DA MUDANÇA --- */}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
-      {/* Courses Section */}
+      {/* Courses Section (COM BOTÃO FUNCIONAL) */}
       <section
         id="cursos"
         className="py-24 bg-gradient-to-br from-purple-50 via-pink-50 to-purple-50"
@@ -313,85 +360,82 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-8">
-            {[
-              {
-                title: "Fundamentos da Disciplina Positiva",
-                description:
-                  "Curso completo sobre os princípios e práticas da Disciplina Positiva para pais e educadores.",
-                duration: "8 horas",
-                lessons: 24,
-                price: "R$ 197,00",
-                thumbnail: "/curso-disciplina-positiva.jpg",
-                featured: true,
-              },
-              {
-                title: "Comunicação Não-Violenta com Crianças",
-                description:
-                  "Aprenda técnicas de comunicação empática para fortalecer vínculos e resolver conflitos.",
-                duration: "6 horas",
-                lessons: 18,
-                price: "R$ 147,00",
-                thumbnail: "/curso-comunicacao-nao-violenta.jpg",
-              },
-            ].map((course, index) => (
-              <Card
-                key={index}
-                className="overflow-hidden hover:shadow-2xl transition-all hover:scale-105 border-2 border-purple-100"
-              >
-                {course.featured && (
-                  <Badge className="absolute top-4 left-4 z-10 bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg">
-                    <Sparkles className="w-3 h-3 mr-1" />
-                    Destaque
-                  </Badge>
-                )}
-                <div className="relative h-64 bg-gradient-to-br from-purple-200 to-pink-200 group cursor-pointer">
-                  <Image
-                    src={course.thumbnail || "/placeholder.svg"}
-                    alt={course.title}
-                    fill
-                    className="object-cover"
-                  />
-                  <div className="absolute inset-0 bg-black/40 flex items-center justify-center group-hover:bg-black/50 transition-all">
-                    <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center group-hover:scale-110 transition-transform shadow-xl">
-                      <Play className="w-10 h-10 text-purple-600 ml-1" />
+          {courses.length === 0 ? (
+            <p className="text-center text-gray-500">
+              Nenhum curso cadastrado no momento. Volte em breve!
+            </p>
+          ) : (
+            <div className="grid md:grid-cols-2 gap-8">
+              {courses.map((course) => (
+                <Card
+                  key={course.id}
+                  className="overflow-hidden hover:shadow-2xl transition-all hover:scale-105 border-2 border-purple-100"
+                >
+                  <div className="relative h-64 bg-gradient-to-br from-purple-200 to-pink-200 group cursor-pointer">
+                    <Image
+                      src={course.thumbnail_url || "/placeholder.svg"}
+                      alt={course.title}
+                      fill
+                      className="object-cover"
+                    />
+                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center group-hover:bg-black/50 transition-all">
+                      <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center group-hover:scale-110 transition-transform shadow-xl">
+                        <Play className="w-10 h-10 text-purple-600 ml-1" />
+                      </div>
                     </div>
                   </div>
-                </div>
-                <CardContent className="p-6 space-y-4">
-                  <h3 className="font-bold text-2xl text-gray-900">
-                    {course.title}
-                  </h3>
-                  <p className="text-gray-600 leading-relaxed">
-                    {course.description}
-                  </p>
-                  <div className="flex items-center gap-6 text-sm text-gray-500">
-                    <div className="flex items-center gap-2">
-                      <Video className="w-4 h-4" />
-                      {course.lessons} aulas
+                  <CardContent className="p-6 space-y-4">
+                    <h3 className="font-bold text-2xl text-gray-900">
+                      {course.title}
+                    </h3>
+                    <p className="text-gray-600 leading-relaxed">
+                      {course.description || "Sem descrição."}
+                    </p>
+                    <div className="flex items-center gap-6 text-sm text-gray-500">
+                      <div className="flex items-center gap-2">
+                        <Video className="w-4 h-4" />
+                        {course.lessons_count || 0} aulas
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Play className="w-4 h-4" />
+                        {course.duration_hours || 0} horas
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Play className="w-4 h-4" />
-                      {course.duration}
+                    <div className="flex items-center justify-between pt-4 border-t">
+                      <span className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                        {formatPrice(course.price)}
+                      </span>
+                      {/* --- MUDANÇA AQUI --- */}
+                      <form action={purchaseProductAction}>
+                        <input
+                          type="hidden"
+                          name="product_id"
+                          value={course.id}
+                        />
+                        <input
+                          type="hidden"
+                          name="product_type"
+                          value="course"
+                        />
+                        <Button
+                          type="submit"
+                          className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 shadow-lg"
+                        >
+                          Comprar Curso
+                          <ArrowRight className="w-4 h-4 ml-2" />
+                        </Button>
+                      </form>
+                      {/* --- FIM DA MUDANÇA --- */}
                     </div>
-                  </div>
-                  <div className="flex items-center justify-between pt-4 border-t">
-                    <span className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                      {course.price}
-                    </span>
-                    <Button className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 shadow-lg">
-                      Acessar Curso
-                      <ArrowRight className="w-4 h-4 ml-2" />
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
-      {/* Carol na Mídia Section */}
+      {/* Mídia Section (ainda mockado) */}
       <section id="midia" className="py-24 bg-white">
         <div className="container mx-auto max-w-7xl px-4">
           <div className="text-center mb-16 space-y-4">
@@ -479,7 +523,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Testimonials */}
+      {/* Testimonials (ainda mockado) */}
       <section
         id="depoimentos"
         className="py-24 bg-gradient-to-br from-purple-50 to-pink-50"
@@ -590,7 +634,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* CTA Section */}
+      {/* CTA Section (sem mudanças) */}
       <section className="py-24 bg-gradient-to-r from-purple-600 via-purple-500 to-pink-600 text-white relative overflow-hidden">
         <div className="absolute inset-0 bg-[url('/abstract-waves.jpg')] opacity-10"></div>
         <div className="container mx-auto max-w-4xl px-4 text-center relative z-10">

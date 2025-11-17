@@ -13,23 +13,21 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Heart, Mail, Lock, User, ArrowLeft, AlertCircle } from "lucide-react";
+import { Heart, Mail, Lock, User, ArrowLeft } from "lucide-react"; // Removido AlertCircle
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { toast } from "sonner"; // <-- IMPORT DO TOAST
 
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [message, setMessage] = useState<string | null>(null);
+  // Os useStates 'error' e 'message' foram removidos
   const router = useRouter();
   const supabase = createClient();
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
-    setError(null);
-    setMessage(null);
 
     const formData = new FormData(e.currentTarget);
     const email = formData.get("email") as string;
@@ -41,13 +39,12 @@ export default function LoginPage() {
     });
 
     if (error) {
-      setError("E-mail ou senha inválidos. Tente novamente.");
+      toast.error("E-mail ou senha inválidos. Tente novamente."); // <-- MUDANÇA
       setIsLoading(false);
       return;
     }
 
-    // Login bem-sucedido, redireciona para o dashboard
-    // router.refresh() é crucial para que o Next.js atualize a sessão no servidor
+    toast.success("Login bem-sucedido!"); // <-- MUDANÇA (opcional)
     router.push("/dashboard");
     router.refresh();
   };
@@ -55,8 +52,6 @@ export default function LoginPage() {
   const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
-    setError(null);
-    setMessage(null);
 
     const formData = new FormData(e.currentTarget);
     const name = formData.get("name") as string;
@@ -65,7 +60,7 @@ export default function LoginPage() {
     const confirmPassword = formData.get("confirm-password") as string;
 
     if (password !== confirmPassword) {
-      setError("As senhas não conferem.");
+      toast.error("As senhas não conferem."); // <-- MUDANÇA
       setIsLoading(false);
       return;
     }
@@ -74,23 +69,18 @@ export default function LoginPage() {
       email,
       password,
       options: {
-        // Salva o nome do usuário nos metadados
-        data: {
-          full_name: name,
-        },
+        data: { full_name: name },
       },
     });
 
     if (error) {
-      setError(error.message);
+      toast.error(error.message); // <-- MUDANÇA
       setIsLoading(false);
       return;
     }
 
     // Cadastro bem-sucedido
-    setMessage(
-      "Conta criada com sucesso! Por favor, verifique seu e-mail para confirmar sua conta antes de fazer login."
-    );
+    toast.success("Conta criada! Verifique seu e-mail para confirmar a conta."); // <-- MUDANÇA
     setIsLoading(false);
   };
 
@@ -124,18 +114,7 @@ export default function LoginPage() {
             <TabsTrigger value="register">Criar Conta</TabsTrigger>
           </TabsList>
 
-          {/* Mensagens de Erro e Sucesso */}
-          {error && (
-            <div className="mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-md flex items-center">
-              <AlertCircle className="w-4 h-4 mr-2" />
-              <span className="text-sm">{error}</span>
-            </div>
-          )}
-          {message && (
-            <div className="mt-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded-md text-center">
-              <span className="text-sm">{message}</span>
-            </div>
-          )}
+          {/* Os blocos de 'error' e 'message' foram removidos daqui */}
 
           <TabsContent value="login">
             <Card>
