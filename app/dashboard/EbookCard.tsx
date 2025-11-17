@@ -1,20 +1,12 @@
 "use client";
 
-import { useState } from "react";
+// Imports simplificados
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 import Image from "next/image";
-import { BookOpen, Download, CheckCircle, Loader2 } from "lucide-react";
-import { toast } from "sonner";
-import { createSignedPdfUrlAction } from "@/app/actions"; // Nossa Server Action
+import Link from "next/link"; // <-- Importamos o Link
+import { Download, CheckCircle } from "lucide-react";
 
 // Tipo para o e-book
 type Ebook = {
@@ -22,8 +14,8 @@ type Ebook = {
   title: string;
   description: string | null;
   cover_image_url: string | null;
-  pdf_file_path: string | null; // Precisamos do PATH
-  pdf_file_url: string | null; // A URL original (não usaremos mais)
+  pdf_file_path: string | null; // (Mantemos para o admin)
+  pdf_file_url: string | null; // <-- Usaremos este
 };
 
 type EbookCardProps = {
@@ -31,30 +23,7 @@ type EbookCardProps = {
 };
 
 export function EbookCard({ ebook }: EbookCardProps) {
-  const [isLoading, setIsLoading] = useState(false);
-  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const handleOpenPdf = async () => {
-    if (!ebook.pdf_file_path) {
-      toast.error("Arquivo PDF não encontrado.");
-      return;
-    }
-
-    setIsLoading(true);
-
-    // Chama a Server Action
-    const result = await createSignedPdfUrlAction(ebook.pdf_file_path);
-
-    if (result.success && result.url) {
-      setPdfUrl(result.url);
-      setIsModalOpen(true); // Abre o modal
-    } else {
-      toast.error(result.message);
-    }
-
-    setIsLoading(false);
-  };
+  // Toda a lógica de state, effect e server action foi removida.
 
   return (
     <Card className="overflow-hidden hover:shadow-lg transition-shadow">
@@ -78,44 +47,18 @@ export function EbookCard({ ebook }: EbookCardProps) {
         </p>
 
         <div className="space-y-3">
-          {/* --- A MUDANÇA ESTÁ AQUI --- */}
-          {/* Usamos o Dialog em vez do Link */}
-          <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-            <DialogTrigger asChild>
-              <Button
-                size="sm"
-                className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
-                onClick={handleOpenPdf}
-                disabled={isLoading}
-              >
-                {isLoading ? (
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                ) : (
-                  <BookOpen className="w-4 h-4 mr-2" />
-                )}
-                Ler E-book
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-4xl h-[90vh] p-0">
-              <DialogHeader className="p-4 sm:p-6">
-                <DialogTitle>{ebook.title}</DialogTitle>
-              </DialogHeader>
-              <div className="h-full w-full">
-                {pdfUrl ? (
-                  <embed
-                    src={pdfUrl}
-                    type="application/pdf"
-                    width="100%"
-                    height="100%"
-                  />
-                ) : (
-                  <div className="flex items-center justify-center h-full bg-gray-100">
-                    <Loader2 className="w-8 h-8 animate-spin text-purple-600" />
-                  </div>
-                )}
-              </div>
-            </DialogContent>
-          </Dialog>
+          {/* --- MUDANÇA: Voltamos ao <Link> simples --- */}
+          <Button
+            size="sm"
+            className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+            asChild
+          >
+            {/* O botão agora é um link real para o PDF, com a flag 'download' */}
+            <Link href={ebook.pdf_file_url || "#"} target="_blank" download>
+              <Download className="w-4 h-4 mr-2" />
+              Download
+            </Link>
+          </Button>
           {/* --- FIM DA MUDANÇA --- */}
         </div>
       </CardContent>

@@ -10,6 +10,7 @@ export async function purchaseProductAction(formData: FormData) {
   // 1. Verificar se o usuário está logado
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) {
+    // Se não estiver logado, redireciona para o login
     return redirect('/login')
   }
 
@@ -18,6 +19,7 @@ export async function purchaseProductAction(formData: FormData) {
   const productType = formData.get('product_type') as string // 'ebook' ou 'course'
 
   if (!productId || !productType) {
+    // Lidar com erro - idealmente redirecionar com uma mensagem
     return redirect('/?error=Produto inválido')
   }
 
@@ -42,56 +44,32 @@ export async function purchaseProductAction(formData: FormData) {
     .insert(purchaseData)
 
   if (error) {
+    // O '23505' é o código de erro do PostgreSQL para 'unique_violation'
+    // que definimos no nosso SQL. Isso significa que o usuário já comprou.
     if (error.code === '23505') {
+      // O usuário já possui este item.
+      // Apenas o redirecione para o dashboard.
       revalidatePath('/dashboard')
       return redirect('/dashboard?message=Você já possui este item.')
     }
+
+    // Outro erro
     console.error('Erro na compra:', error)
     return redirect(`/?error=${error.message}`)
   }
 
   // 5. Sucesso!
+  // Revalida o dashboard (limpa o cache) e redireciona o usuário
   revalidatePath('/dashboard')
   redirect('/dashboard?success=Compra realizada com sucesso!')
 }
 
 export async function signOutAction() {
   const supabase = createClient()
+  // Limpa a sessão do usuário
   await supabase.auth.signOut()
+  // Redireciona para a página inicial
   return redirect('/')
 }
 
-
-// --- NOVA AÇÃO PARA PDF SEGURO ---
-export async function createSignedPdfUrlAction(pdfPath: string): Promise<{
-  success: boolean;
-  message: string;
-  url: string | null;
-}> {
-  'use server' // Garante que isso é uma Server Action
-
-  const supabase = createClient()
-
-  // 1. Verifica se o usuário está logado
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) {
-    return { success: false, message: 'Usuário não autenticado.', url: null }
-  }
-  
-  // 2. Tenta criar uma URL assinada (temporária)
-  // O Supabase irá checar nossa Política de RLS (Passo 1)
-  // e SÓ VAI FUNCIONAR se o usuário logado tiver comprado o e-book
-  // com o 'pdf_file_path' correspondente.
-  const { data, error } = await supabase.storage
-    .from('ebook_files')
-    .createSignedUrl(pdfPath, 3600) // 3600 segundos = 1 hora de validade
-
-  if (error) {
-    console.error('Erro ao criar URL assinada:', error)
-    // Este erro pode significar que o usuário NÃO TEM permissão (compra)
-    return { success: false, message: 'Não foi possível acessar o e-book. Verifique sua compra.', url: null }
-  }
-
-  // 3. Sucesso
-  return { success: true, message: 'URL gerada com sucesso.', url: data.signedUrl }
-}
+// A função createSignedPdfUrlAction foi REMOVIDA.
